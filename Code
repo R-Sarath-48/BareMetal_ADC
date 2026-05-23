@@ -1,0 +1,44 @@
+#include <stdint.h>
+#include <stdio.h>
+
+uint32_t *AHB1ENR =       (uint32_t*)0x40023830; //PORT A
+uint32_t *APB2ENR =       (uint32_t*)0x40023844; // PHERIPHERAL BUS
+uint32_t *GPIOA_MODER   = (uint32_t*)0x40020000;//GPIOA MODER
+uint32_t *ADC1_CR2   =    (uint32_t*)0x40012008;//ADC_CR2 ENABLE
+uint32_t *SQR3       =    (uint32_t*)0x40012034;//SELECT THE CHANNEL
+uint32_t *SR     =        (uint32_t*)0x40012000;//TO STOP THE CONVERSION
+uint32_t *DR     =        (uint32_t*)0x4001204c; // STORE THE DATAS
+uint16_t AnalogValue=0;
+
+
+void ADC_INIT();
+void delay();
+void ADC_INIT(){
+	*AHB1ENR |= (1<<0);  //PORTA SET;
+	*APB2ENR |=  0x100; //SET ADC
+	*GPIOA_MODER |=0xC;//SET THE PA1 AS ANALOG MODE
+	*ADC1_CR2  = 0; 
+	*SQR3 = 1; //CHANNEL 1 SELECTED
+	*ADC1_CR2  |= 1; // ADON SET
+
+}
+void delay(void){
+	for(uint32_t i=0;i<30000;i++);
+}
+
+int main(void)
+{
+
+	ADC_INIT();
+
+    while(1){
+    	*ADC1_CR2 |=0x40000000 ; // START THE CONVERSION
+    	while(!(*SR & 2)){
+    	   }
+    	AnalogValue=*DR;
+    	//*SR &= ~(1<<1);
+    	printf("The ADC values are: %ld ",AnalogValue);
+    	delay();
+
+    }
+}
